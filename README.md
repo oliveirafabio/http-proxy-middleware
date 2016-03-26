@@ -19,14 +19,14 @@ $ npm install --save-dev http-proxy-middleware
 
 Configure the proxy middleware.
 ```javascript
-var proxyMiddleware = require('http-proxy-middleware');
+var proxy = require('http-proxy-middleware');
 
-var proxy = proxyMiddleware('/api', {target: 'http://www.example.org'});
-//                          \____/  \________________________________/
-//                            |                     |
-//                          context              options
+var apiProxy = proxy('/api', {target: 'http://www.example.org'});
+//                            \____/  \______________________/
+//                              |                |
+//                            context         options
 
-// 'proxy' is now ready to be used in a server.
+// 'apiProxy' is now ready to be used as middleware in a server.
 ```
 * **context**: matches provided context against request-urls' **path**.
     Matching requests will be proxied to the target host.
@@ -36,7 +36,7 @@ var proxy = proxyMiddleware('/api', {target: 'http://www.example.org'});
 
 ``` javascript
 // shorthand syntax for the example above:
-var proxy = proxyMiddleware('http://www.example.org/api');
+var apiProxy = proxy('http://www.example.org/api');
 
 ```
 More about the [shorthand configuration](#shorthand).
@@ -47,7 +47,7 @@ An example with express server.
 ```javascript
 // include dependencies
 var express = require('express');
-var proxyMiddleware = require('http-proxy-middleware');
+var proxy = require('http-proxy-middleware');
 
 // configure proxy middleware context
 var context = '/api';                     // requests with this path will be proxied
@@ -69,11 +69,11 @@ var options = {
     };
 
 // create the proxy
-var proxy = proxyMiddleware(context, options);
+var apiProxy = proxy(context, options);
 
-// use the configured `proxy` in web server
+// use the configured `apiProxy` in web server
 var app = express();
-    app.use(proxy);
+    app.use(apiProxy);
     app.listen(3000);
 ```
 
@@ -111,7 +111,7 @@ Request URL's [ _path-absolute_ and _query_](https://tools.ietf.org/html/rfc3986
         return (path.match('^/api') && req.method === 'GET');
     };
 
-    var apiProxy = proxyMiddleware(filter, {target: 'http://www.example.org'})
+    var apiProxy = proxy(filter, {target: 'http://www.example.org'})
     ```
 
 ## Shorthand
@@ -119,42 +119,42 @@ Request URL's [ _path-absolute_ and _query_](https://tools.ietf.org/html/rfc3986
 Use the shorthand syntax when verbose configuration is not needed. The `context` and `option.target` will be automatically configured when shorthand is used. Options can still be used if needed.
 
 ```javascript
-proxyMiddleware('http://www.example.org:8000/api');
-// proxyMiddleware('/api', {target: 'http://www.example.org:8000'});
+proxy('http://www.example.org:8000/api');
+// proxy('/api', {target: 'http://www.example.org:8000'});
 
 
-proxyMiddleware('http://www.example.org:8000/api/books/*/**.json');
-// proxyMiddleware('/api/books/*/**.json', {target: 'http://www.example.org:8000'});
+proxy('http://www.example.org:8000/api/books/*/**.json');
+// proxy('/api/books/*/**.json', {target: 'http://www.example.org:8000'});
 
 
-proxyMiddleware('http://www.example.org:8000/api', {changeOrigin:true});
-// proxyMiddleware('/api', {target: 'http://www.example.org:8000', changeOrigin: true});
+proxy('http://www.example.org:8000/api', {changeOrigin:true});
+// proxy('/api', {target: 'http://www.example.org:8000', changeOrigin: true});
 ```
 
 ## WebSocket
 
 ```javascript
 // verbose api
-proxyMiddleware('/', {target:'http://echo.websocket.org', ws:true});
+proxy('/', {target:'http://echo.websocket.org', ws:true});
 
 // shorthand
-proxyMiddleware('http://echo.websocket.org', {ws:true});
+proxy('http://echo.websocket.org', {ws:true});
 
 // shorter shorthand
-proxyMiddleware('ws://echo.websocket.org');
+proxy('ws://echo.websocket.org');
 ```
 
 ### External WebSocket upgrade
 
 In the previous WebSocket examples, http-proxy-middleware relies on a initial http request in order to listen to the http `upgrade` event. If you need to proxy WebSockets without the initial http request, you can subscribe to the server's http `upgrade` event manually.
 ```javascript
-var proxy = proxyMiddleware('ws://echo.websocket.org', {changeOrigin:true});
+var wsProxy = proxy('ws://echo.websocket.org', {changeOrigin:true});
 
 var app = express();
-    app.use(proxy);
+    app.use(wsProxy);
 
 var server = app.listen(3000);
-    server.on('upgrade', proxy.upgrade);    // <-- subscribe to http 'upgrade'
+    server.on('upgrade', wsProxy.upgrade);  // <-- subscribe to http 'upgrade'
 ```
 
 ## Options
@@ -174,10 +174,10 @@ var server = app.listen(3000);
 * **option.proxyTable**: object, re-target `option.target` based on the request header `host` parameter. `host` can be used in conjunction with `path`. Only one instance of the proxy will be used. The order of the configuration matters.
     ```javascript
     proxyTable: {
-        "integration.localhost:3000" : "http://localhost:8001",    // host only
-        "staging.localhost:3000"     : "http://localhost:8002",    // host only
-        "localhost:3000/api"         : "http://localhost:8003",    // host + path
-        "/rest"                      : "http://localhost:8004"     // path only
+        "integration.localhost:3000" : "http://localhost:8001",  // host only
+        "staging.localhost:3000"     : "http://localhost:8002",  // host only
+        "localhost:3000/api"         : "http://localhost:8003",  // host + path
+        "/rest"                      : "http://localhost:8004"   // path only
     }
     ```
 

@@ -4,7 +4,7 @@ Rewrite paths before requests are send to the target.
 
 ## Path rewrite
 ```javascript
-var proxyMiddleware = require("http-proxy-middleware");
+var proxy = require("http-proxy-middleware");
 
 var options = {
     target: 'http://localhost:3000',
@@ -13,14 +13,14 @@ var options = {
     }
 };
 
-var proxy = proxyMiddleware('/api', options);
+var apiProxy = proxy('/api', options);
 
 // `/old/api/foo/bar` -> `http://localhost:3000/new/api/foo/bar`
 ```
 
 ## Remove base path 
 ```javascript
-var proxyMiddleware = require("http-proxy-middleware");
+var proxy = require("http-proxy-middleware");
 
 var options = {
     target: 'http://localhost:3000',
@@ -29,14 +29,14 @@ var options = {
     }
 };
 
-var proxy = proxyMiddleware('/api', options);
+var apiProxy = proxy('/api', options);
 
 // `/remove/api/lorum/ipsum` -> `http://localhost:3000/lorum/ipsum`
 ```
 
 ## Add base path 
 ```javascript
-var proxyMiddleware = require("http-proxy-middleware");
+var proxy = require("http-proxy-middleware");
 
 var options = {
     target: 'http://localhost:3000',
@@ -45,7 +45,7 @@ var options = {
     }
 };
 
-var proxy = proxyMiddleware('/api', options);
+var apiProxy = proxy('/api', options);
 
 // `/api/lorum/ipsum` -> `http://localhost:3000/extra/api/lorum/ipsum`
 ```
